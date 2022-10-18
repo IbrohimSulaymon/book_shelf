@@ -32,6 +32,7 @@ func (s Server) Authorise(c *gin.Context, signString string) error {
 
 	mySign := md5.Sum([]byte(signString + secret))
 	if fmt.Sprintf("%x", mySign) != sign {
+		log.Println(fmt.Sprintf("%x", mySign), sign)
 		return fmt.Errorf("secret key is not valid")
 	}
 
@@ -71,14 +72,14 @@ func (s Server) CreateUser(c *gin.Context) {
 }
 
 func (s Server) GetUserInfo(c *gin.Context) {
-	//if err := s.Authorise(c, pkg.GetUserInfoSign); err != nil {
-	//	c.JSON(http.StatusBadRequest, GetUserInfoResponse{
-	//		IsOk:    false,
-	//		Message: err.Error(),
-	//	})
-	//
-	//	return
-	//}
+	if err := s.Authorise(c, pkg.GetUserInfoSign); err != nil {
+		c.JSON(http.StatusBadRequest, GetUserInfoResponse{
+			IsOk:    false,
+			Message: err.Error(),
+		})
+
+		return
+	}
 	user, err := s.repo.GetUserInfo(c.Request.Context(), c.GetHeader("key"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, GetUserInfoResponse{
@@ -107,14 +108,14 @@ func (s Server) CreateBook(c *gin.Context) {
 		author      GetAuthorWithISBNResponse
 		authorNames string
 	)
-	//if err := s.Authorise(c, pkg.CreateBookSign); err != nil {
-	//	c.JSON(http.StatusBadRequest, CreateNewBookResponse{
-	//		IsOk:    false,
-	//		Message: err.Error(),
-	//	})
-	//
-	//	return
-	//}
+	if err := s.Authorise(c, pkg.CreateBookSign); err != nil {
+		c.JSON(http.StatusBadRequest, CreateNewBookResponse{
+			IsOk:    false,
+			Message: err.Error(),
+		})
+
+		return
+	}
 
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, CreateNewBookResponse{
@@ -218,14 +219,14 @@ func (s Server) CreateBook(c *gin.Context) {
 
 func (s Server) EditBook(c *gin.Context) {
 	body := EditBookRequest{}
-	//if err := s.Authorise(c, pkg.EditBookSign); err != nil {
-	//	c.JSON(http.StatusBadRequest, EditBookResponse{
-	//		IsOk:    false,
-	//		Message: err.Error(),
-	//	})
-	//
-	//  return
-	//}
+	if err := s.Authorise(c, pkg.EditBookSign); err != nil {
+		c.JSON(http.StatusBadRequest, EditBookResponse{
+			IsOk:    false,
+			Message: err.Error(),
+		})
+
+		return
+	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, EditBookResponse{
@@ -273,14 +274,14 @@ func (s Server) EditBook(c *gin.Context) {
 
 func (s Server) GetAllBooks(c *gin.Context) {
 	res := GetAllBooksResponse{}
-	//if err := s.Authorise(c, pkg.GetAllBooksSign); err != nil {
-	//	c.JSON(http.StatusBadRequest, GetAllBooksResponse{
-	//		IsOk:    false,
-	//		Message: err.Error(),
-	//	})
-	//
-	//	return
-	//}
+	if err := s.Authorise(c, pkg.GetAllBooksSign); err != nil {
+		c.JSON(http.StatusBadRequest, GetAllBooksResponse{
+			IsOk:    false,
+			Message: err.Error(),
+		})
+
+		return
+	}
 
 	books, err := s.repo.GetAllBooks(c)
 	if err != nil {
@@ -312,14 +313,14 @@ func (s Server) GetAllBooks(c *gin.Context) {
 }
 
 func (s Server) DeleteBook(c *gin.Context) {
-	//if err := s.Authorise(c, pkg.GetAllBooksSign); err != nil {
-	//	c.JSON(http.StatusBadRequest, DeleteBookResponse{
-	//		IsOk:    false,
-	//		Message: err.Error(),
-	//	})
-	//
-	//	return
-	//}
+	if err := s.Authorise(c, pkg.DeleteBookSign); err != nil {
+		c.JSON(http.StatusBadRequest, DeleteBookResponse{
+			IsOk:    false,
+			Message: err.Error(),
+		})
+
+		return
+	}
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
