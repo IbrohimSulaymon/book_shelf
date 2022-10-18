@@ -2,13 +2,12 @@ package main
 
 import (
 	"book_shelf/config"
+	_ "book_shelf/domain"
 	"book_shelf/repository"
 	"book_shelf/router"
 	"book_shelf/server"
 	"log"
-	"net"
-
-	_ "book_shelf/domain"
+	"os"
 )
 
 func main() {
@@ -26,5 +25,5 @@ func main() {
 
 	r := router.InitRouter(s)
 
-	r.Run(net.JoinHostPort(cfg.Host, cfg.Port))
+	r.Run(":" + os.Getenv("PORT"))
 }
